@@ -94,10 +94,10 @@ timing();
         echo "Jabatan mentah dari DB: '" . htmlspecialchars($data['jabatan']) . "'\n";
         $processedJabatan = strtolower(trim($data['jabatan']));
         echo "Jabatan setelah trim dan strtolower: '" . htmlspecialchars($processedJabatan) . "'\n";
-        $allowed_roles = ['owner', 'kasir'];
+        $allowed_roles = ['admin', 'kasir'];
         echo "Jabatan yang diizinkan: " . htmlspecialchars(implode(', ', $allowed_roles)) . "\n";
         $isJabatanValid = in_array($processedJabatan, $allowed_roles);
-        // echo "Apakah jabatan valid ('owner' atau 'kasir')? " . ($isJabatanValid ? 'Ya' : 'Tidak') . "\n";
+        // echo "Apakah jabatan valid ('admin' atau 'kasir')? " . ($isJabatanValid ? 'Ya' : 'Tidak') . "\n";
         echo "</pre>";
         // --- AKHIR DEBUGGING ---
 
@@ -112,15 +112,14 @@ timing();
           header("Location: index");
           exit();
         } else {
-          echo "<pre style='background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 10px; margin-top: 10px; text-align: center;'><strong>PESAN ERROR:</strong> Login GAGAL. Jabatan tidak sesuai untuk user '" . htmlspecialchars($data['username']) . "'. Jabatan terdeteksi: '" . htmlspecialchars($processedJabatan) . "'</pre>";
           session_destroy();
-          echo '<p style="text-align: center; margin-top: 20px;"><a href="login.php" style="color: #007bff; text-decoration: none;">Coba login lagi</a></p>';
+          header("Location: loginagain.php");
           exit();
         }
       } else {
         // Jika user tidak ditemukan di tabel 'user' sama sekali
-        echo "<pre style='background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 10px; margin-top: 10px; text-align: center;'><strong>Login GAGAL!</strong> Username atau password salah, atau akun tidak ditemukan.</pre>";
-        echo '<p style="text-align: center; margin-top: 20px;"><a href="login.php" style="color: #007bff; text-decoration: none;">Coba login lagi</a></p>';
+        session_destroy();
+        header("Location: loginagain.php");
         exit();
       }
     }

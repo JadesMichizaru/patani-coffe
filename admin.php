@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!DOCTYPE html>adsfar
 <html>
 <?php
 include "configuration/config_etc.php";
 include "configuration/config_include.php";
-etc();
+// etc();
 encryption();
 session();
 connect();

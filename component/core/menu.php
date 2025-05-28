@@ -34,7 +34,7 @@ if($chmenu2 >= 1 || $_SESSION['jabatan'] == 'admin'){ ?>
                             <a href="#"> <i class="glyphicon glyphicon-th-list"></i> <span>Barang</span> <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i> </span> </a>
                <ul class="treeview-menu">
                                 <li>
-                                    <a href="barang"><i class="fa fa-circle-o"></i>Data Barang</a>
+                                    <a href="404"><i class="fa fa-circle-o"></i>Data Barang</a>
                                 </li>
 <li>
                                     <a href="add_barang"><i class="fa fa-circle-o"></i>Tambah Barang</a>

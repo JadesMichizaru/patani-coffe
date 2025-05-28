@@ -3,7 +3,13 @@
 <?php
 include "configuration/config_etc.php";
 include "configuration/config_include.php";
-etc();encryption();session();connect();head();body();timing();
+// etc();
+encryption();
+session();
+connect();
+head();
+body();
+timing();
 //alltotal();
 pagination();
 ?>
@@ -401,8 +407,8 @@ $jumlahbayar=$rowa['data'];
                                    <tbody>
               <tr>
                           <td><?php echo ++$no_urut;?></td>
-                          <td><?php  echo mysql_real_escape_string($fill['nota']); ?></td>
-                          <td><?php  echo mysql_real_escape_string($fill['tglbeli']); ?></td>
+                          <td><?php  echo mysqli_real_escape_string($conn, $fill['nota']); ?></td>
+                          <td><?php  echo mysqli_real_escape_string($conn, $fill['tglbeli']); ?></td>
                           <?php
                         $nota = $fill['nota'];
                         $sqle="SELECT COUNT( nota ) AS data FROM transaksibeli WHERE nota ='$nota'";

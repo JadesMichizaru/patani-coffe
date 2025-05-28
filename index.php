@@ -10,7 +10,7 @@ connect();
 head();
 body();
 timing();
-//pagination();
+pagination();
 ?>
 
 <?php
@@ -24,7 +24,7 @@ if (!login_check()) {
 <div class="wrapper">
   <?php
   theader();
-  
+
   menu();
   ?>
   <div class="content-wrapper">
@@ -84,21 +84,7 @@ if (!login_check()) {
               <div class="icon">
                 <i class="ion ion-person"></i>
               </div>
-              <a href="admin" class="small-box-footer">Info lengkap <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-          </div>
-
-          <div class="col-lg-3 col-xs-6">
-            <!-- small box -->
-            <div class="small-box bg-green">
-              <div class="inner">
-                <h3><?php echo $datax2; ?></h3>
-                <p>Supplier</p>
-              </div>
-              <div class="icon">
-                <i class="ion ion-person"></i>
-              </div>
-              <a href="supplier" class="small-box-footer">Info lengkap <i class="fa fa-arrow-circle-right"></i></a>
+              <a href="<?php echo $baseurl; ?>/indotory/admin" class="small-box-footer">Info lengkap <i class="fa fa-arrow-circle-right"></i></a>
             </div>
           </div>
 
@@ -319,7 +305,7 @@ if (!login_check()) {
                     $isi = $_POST["isi"];
                   }
 
-                  $sql = "select * from info";
+                  $sql = "SELECT * from info";
                   $hasil2 = mysqli_query($conn, $sql);
 
 
@@ -369,15 +355,15 @@ if (!login_check()) {
 
                     if (isset($_POST['simpan'])) {
 
-                      $sql = "select * from info";
+                      $sql = "SELECT * from info";
                       $result = mysqli_query($conn, $sql);
 
                       if (mysqli_num_rows($result) > 0) {
 
-                        $sql1 = "update info set nama='$nama', avatar='$avatar',tanggal='$tanggal', isi='$isi' where id='1'";
+                        $sql1 = "UPDATE info set nama='$nama', avatar='$avatar',tanggal='$tanggal', isi='$isi' where id='1'";
                         $result = mysqli_query($conn, $sql1);
                       } else {
-                        $sql1 = "insert into info values('$nama','$tanggal','$isi','$avatar','$id')";
+                        $sql1 = "INSERT into info values('$nama','$tanggal','$isi','$avatar','$id')";
                         $result = mysqli_query($conn, $sql1);
                       }
                     }
@@ -433,7 +419,7 @@ if (!login_check()) {
               $isi = $_POST["isi"];
             }
 
-            $sql = "select * from info";
+            $sql = "SELECT * from info";
             $hasil2 = mysqli_query($conn, $sql);
 
 

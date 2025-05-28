@@ -4,12 +4,12 @@
 include "configuration/config_include.php";
 connect();
 
-$queryback="SELECT * FROM data";
-    $resultback=mysqli_query($conn,$queryback);
-    $rowback=mysqli_fetch_assoc($resultback);
-    $footer=$rowback['nama'];
+$queryback = "SELECT * FROM data";
+$resultback = mysqli_query($conn, $queryback);
+$rowback = mysqli_fetch_assoc($resultback);
+$footer = $rowback['nama'];
 error_reporting(E_ALL ^ (E_NOTICE | E_WARNING));
-   $PIN=$_GET['pin']; 
+$PIN = $_GET['pin'];
 
 ?>
 
@@ -36,124 +36,126 @@ error_reporting(E_ALL ^ (E_NOTICE | E_WARNING));
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 </head>
+
 <body class="hold-transition lockscreen">
-<!-- Automatic element centering -->
-<div class="lockscreen-wrapper">
-  <div class="lockscreen-logo">
-    <a href="../../index2.html"><b><?php echo $footer;?></b>POS</a>
-  </div>
-
-
-<?php 
-if($PIN=='true'){?>
-
-<form method="post" action="">
-<div>
-
-<button type="submit" name="reset" class="btn btn-danger btn-block">RESET</button>
-</div>
-
-</form>
-<p>Klik RESET lalu Login dengan username: admin & password: admin</p>
-
-<?php } else {?>
-
-  <!-- User name -->
-  <div class="lockscreen-name">Admin</div>
-
-  <!-- START LOCK SCREEN ITEM -->
-  <div class="lockscreen-item">
-    <!-- lockscreen image -->
-    <div class="lockscreen-image">
-      <img src="dist/img/avatar.png" alt="User Image">
+  <!-- Automatic element centering -->
+  <div class="lockscreen-wrapper">
+    <div class="lockscreen-logo">
+      <a href="../../index2.html"><b><?php echo $footer; ?></b>POS</a>
     </div>
-    <!-- /.lockscreen-image -->
 
-    <!-- lockscreen credentials (contains the form) -->
-    <form class="lockscreen-credentials" action="" method="post">
-      <div class="input-group">
-        <input type="password" class="form-control" name="pin" placeholder="Masukan PIN">
 
-        <div class="input-group-btn">
-          <button type="submit" class="btn" name="cek"><i class="fa fa-arrow-right text-muted"></i></button>
+    <?php
+    if ($PIN == 'true') { ?>
+
+      <form method="post" action="">
+        <div>
+
+          <button type="submit" name="reset" class="btn btn-danger btn-block">RESET</button>
         </div>
+
+      </form>
+      <p>Klik RESET lalu Login dengan username: admin & password: admin</p>
+
+    <?php } else { ?>
+
+      <!-- User name -->
+      <div class="lockscreen-name">Admin</div>
+
+      <!-- START LOCK SCREEN ITEM -->
+      <div class="lockscreen-item">
+        <!-- lockscreen image -->
+        <div class="lockscreen-image">
+          <img src="dist/img/avatar.png" alt="User Image">
+        </div>
+        <!-- /.lockscreen-image -->
+
+        <!-- lockscreen credentials (contains the form) -->
+        <form class="lockscreen-credentials" action="" method="post">
+          <div class="input-group">
+            <input type="password" class="form-control" name="pin" placeholder="Masukan PIN">
+
+            <div class="input-group-btn">
+              <button type="submit" class="btn" name="cek"><i class="fa fa-arrow-right text-muted"></i></button>
+            </div>
+          </div>
+        </form>
+        <!-- /.lockscreen credentials -->
+
       </div>
-    </form>
-    <!-- /.lockscreen credentials -->
+      <!-- /.lockscreen-item -->
+      <div class="help-block text-center">
+        Masukan PIN Anda Untuk mereset password Admin
+      </div>
+
+    <?php } ?>
+
+    <div class="text-center">
+
+    </div>
 
   </div>
-  <!-- /.lockscreen-item -->
-  <div class="help-block text-center">
-    Masukan PIN Anda Untuk mereset password Admin
-  </div>
 
-<?php } ?>
-
-  <div class="text-center">
-    
-  </div>
-  
-</div>
-
-<!-- /.center -->
+  <!-- /.center -->
 
 
 
-<?php 
-if(isset($_POST['reset'])){
-if($_SERVER["REQUEST_METHOD"]=="POST"){
+  <?php
+  if (isset($_POST['reset'])) {
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-$password="90b9aa7e25f80cf4f64e990b78a9fc5ebd6cecad";
-$user = "admin";
+      $password = "90b9aa7e25f80cf4f64e990b78a9fc5ebd6cecad";
+      $user = "admin";
 
- $sql="select * from user where userna_me='$user'";
-        $result=mysqli_query($conn,$sql);
-        if(mysqli_num_rows($result)>0){
-          $updt = "UPDATE user SET pa_ssword='$password', jabatan='$user' where userna_me='$user' ";
-          $query =mysqli_query($conn, $updt);
-          if ($query){
-            echo "<script type='text/javascript'>window.location = 'login';</script>";
-          }
-        } else {
-
-           $sql2 = "insert into user values( '$user','$password','admin','alamat','111','2020-02-02','2020-02-02','admin','dist/upload/index.jpg','')";
-            $query =mysqli_query($conn,$sql2);
-             if ($query){
-           echo "<script type='text/javascript'>window.location = 'login';</script>";
-          }
+      $sql = "select * from user where userna_me='$user'";
+      $result = mysqli_query($conn, $sql);
+      if (mysqli_num_rows($result) > 0) {
+        $updt = "UPDATE user SET pa_ssword='$password', jabatan='$user' where userna_me='$user' ";
+        $query = mysqli_query($conn, $updt);
+        if ($query) {
+          echo "<script type='text/javascript'>window.location = 'login';</script>";
         }
-}
-}
+      } else {
 
-?>
-
-
-
-
-
-<?php
-
-      if(isset($_POST['cek'])){
-   if($_SERVER["REQUEST_METHOD"] == "POST"){
-    $pin = mysqli_real_escape_string($conn, $_POST["pin"]);
-    $pina=sha1(MD5($pin));
-
-       $sql="select * from pin where pin='$pina'";
-        $result=mysqli_query($conn,$sql);
-        if(mysqli_num_rows($result)>0){
-
-          $_SESSION['pin']= $pina;
-            echo "<script type='text/javascript'>window.location = 'reset?pin=true';</script>";
-        } else {
-           echo "<script type='text/javascript'>  alert('PIN salah!'); </script>";
+        $sql2 = "insert into user values( '$user','$password','admin','alamat','111','2020-02-02','2020-02-02','admin','dist/upload/index.jpg','')";
+        $query = mysqli_query($conn, $sql2);
+        if ($query) {
+          echo "<script type='text/javascript'>window.location = 'login';</script>";
         }
+      }
+    }
+  }
 
-    }}
-    ?>
+  ?>
 
-<!-- jQuery 2.2.3 -->
-<script src="../../plugins/jQuery/jquery-2.2.3.min.js"></script>
-<!-- Bootstrap 3.3.6 -->
-<script src="../../bootstrap/js/bootstrap.min.js"></script>
+
+
+
+
+  <?php
+
+  if (isset($_POST['cek'])) {
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+      $pin = mysqli_real_escape_string($conn, $_POST["pin"]);
+      $pina = sha1(MD5($pin));
+
+      $sql = "select * from pin where pin='$pina'";
+      $result = mysqli_query($conn, $sql);
+      if (mysqli_num_rows($result) > 0) {
+
+        $_SESSION['pin'] = $pina;
+        echo "<script type='text/javascript'>window.location = 'reset?pin=true';</script>";
+      } else {
+        echo "<script type='text/javascript'>  alert('PIN salah!'); </script>";
+      }
+    }
+  }
+  ?>
+
+  <!-- jQuery 2.2.3 -->
+  <script src="../../plugins/jQuery/jquery-2.2.3.min.js"></script>
+  <!-- Bootstrap 3.3.6 -->
+  <script src="../../bootstrap/js/bootstrap.min.js"></script>
 </body>
+
 </html>

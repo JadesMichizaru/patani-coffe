@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html>
 <?php
+// Tampilkan semua error untuk debug
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 include "configuration/config_etc.php";
 include "configuration/config_include.php";
-etc();
+// etc();
 encryption();
 session();
 connect();
@@ -18,7 +22,7 @@ if (!login_check()) {
     exit(0);
 }
 ?>
-
+<body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
     <?php
     theader();
@@ -31,6 +35,10 @@ if (!login_check()) {
             <div class="row">
                 <div class="col-lg-12">
                     <?php
+                    // Pastikan koneksi sudah ada
+                    if (!isset($conn)) {
+                        include "configuration/config_connect.php";
+                    }
                     error_reporting(E_ALL ^ (E_NOTICE | E_WARNING));
                     include "configuration/config_chmod.php";
                     
@@ -41,14 +49,14 @@ if (!login_check()) {
                     $chmod = $chmenu3;
                     $forward = mysqli_real_escape_string($conn, $tabeldatabase);
                     $forwardpage = mysqli_real_escape_string($conn, $halaman);
-                    $search = $_POST['search'];
+                    $search = isset($_POST['search']) ? $_POST['search'] : '';
                     ?>
 
                     <!-- Breadcrumb -->
                     <ol class="breadcrumb">
-                        <li><a href="<?php echo $_SESSION['baseurl']; ?>">Dashboard</a></li>
+                        <li><a href="<?php echo isset($_SESSION['baseurl']) ? $_SESSION['baseurl'] : '#'; ?>">Dashboard</a></li>
                         <li><a href="<?php echo $halaman; ?>"><?php echo $dataapa ?></a></li>
-                        <?php if ($search != null || $search != "") { ?>
+                        <?php if ($search != null && $search != "") { ?>
                             <li><a href="<?php echo $halaman; ?>">Data <?php echo $dataapa ?></a></li>
                             <li class="active"><?php echo $search; ?></li>
                         <?php } else { ?>
@@ -66,7 +74,7 @@ if (!login_check()) {
                     </script>
 
                     <?php
-                    $hapusberhasil = $_POST['hapusberhasil'];
+                    $hapusberhasil = isset($_POST['hapusberhasil']) ? $_POST['hapusberhasil'] : '';
                     if ($hapusberhasil == 1) { ?>
                         <div id="myAlert" class="alert alert-success alert-dismissible fade in" role="alert">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -91,14 +99,32 @@ if (!login_check()) {
                     <?php } ?>
 
                     <!-- Access Control -->
-                    <?php if ($chmod == '1' || $chmod == '2' || $chmod == '3' || $chmod == '4' || $chmod == '5' || $_SESSION['jabatan'] == 'admin') { ?>
+                    <?php if ($chmod == '1' || $chmod == '2' || $chmod == '3' || $chmod == '4' || $chmod == '5' || (isset($_SESSION['jabatan']) && $_SESSION['jabatan'] == 'admin')) { ?>
                         <?php
-                        $sqla = "SELECT no, COUNT(*) AS totaldata FROM $forward";
+                        // Hitung total data
+                        $sqla = "SELECT COUNT(*) AS totaldata FROM $forward";
                         $hasila = mysqli_query($conn, $sqla);
                         $rowa = mysqli_fetch_assoc($hasila);
                         $totaldata = $rowa['totaldata'];
-                        ?>
 
+                        // Pagination
+                        $rpp = 15; // rows per page
+                        $page = isset($_GET["page"]) ? intval($_GET["page"]) : 1;
+                        if($page <= 0) $page = 1;
+                        $reload = "$halaman?page=";
+
+                        if ($search != null && $search != "") {
+                            $sql = "SELECT * FROM $forward WHERE kode LIKE '%$search%' OR nama LIKE '%$search%' ORDER BY no";
+                        } else {
+                            $sql = "SELECT * FROM $forward ORDER BY no";
+                        }
+                        $result = mysqli_query($conn, $sql);
+                        $tcount = mysqli_num_rows($result);
+                        $tpages = ($tcount) ? ceil($tcount / $rpp) : 1;
+                        $count = 0;
+                        $i = ($page - 1) * $rpp;
+                        $no_urut = $i;
+                        ?>
                         <div class="box">
                             <div class="box-header">
                                 <h3 class="box-title">
@@ -108,7 +134,7 @@ if (!login_check()) {
                                 <form method="post">
                                     <br/>
                                     <div class="input-group input-group-sm" style="width: 250px;">
-                                        <input type="text" name="search" class="form-control pull-right" placeholder="Cari">
+                                        <input type="text" name="search" class="form-control pull-right" placeholder="Cari" value="<?php echo htmlspecialchars($search); ?>">
                                         <div class="input-group-btn">
                                             <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
                                         </div>
@@ -123,76 +149,76 @@ if (!login_check()) {
                                             <th>No</th>
                                             <th>Kode</th>
                                             <th>Nama</th>
-                                            <?php if ($chmod >= 3 || $_SESSION['jabatan'] == 'admin') { ?>
+                                            <?php if ($chmod >= 3 || (isset($_SESSION['jabatan']) && $_SESSION['jabatan'] == 'admin')) { ?>
                                                 <th>Opsi</th>
                                             <?php } ?>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php
-                                        error_reporting(E_ALL ^ (E_NOTICE | E_WARNING));
-                                        $search = $_POST['search'];
-
-                                        if ($search != null || $search != "") {
-                                            if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['search'])) {
-                                                $query1 = "SELECT * FROM $forward WHERE kode LIKE '%$search%' OR nama LIKE '%$search%' ORDER BY no LIMIT $rpp";
-                                                $hasil = mysqli_query($conn, $query1);
-                                                $no = 1;
+                                        if ($tcount > 0) {
+                                            if ($search != null && $search != "") {
+                                                // Jika search, tampilkan semua hasil (tanpa paging)
+                                                $hasil = mysqli_query($conn, $sql);
                                                 while ($fill = mysqli_fetch_assoc($hasil)) { ?>
                                                     <tr>
                                                         <td><?php echo ++$no_urut; ?></td>
-                                                        <td><?php echo mysqli_real_escape_string($conn, $fill['kode']); ?></td>
-                                                        <td><?php echo mysqli_real_escape_string($conn, $fill['nama']); ?></td>
+                                                        <td><?php echo htmlspecialchars($fill['kode']); ?></td>
+                                                        <td><?php echo htmlspecialchars($fill['nama']); ?></td>
+                                                        <?php if ($chmod >= 3 || (isset($_SESSION['jabatan']) && $_SESSION['jabatan'] == 'admin')) { ?>
                                                         <td>
-                                                            <?php if ($chmod >= 3 || $_SESSION['jabatan'] == 'admin') { ?>
-                                                                <button type="button" class="btn btn-success btn-xs" 
-                                                                        onclick="window.location.href='add_<?php echo $halaman; ?>?no=<?php echo $fill['no']; ?>'">
-                                                                    Edit
-                                                                </button>
-                                                            <?php } ?>
-                                                            <?php if ($chmod >= 4 || $_SESSION['jabatan'] == 'admin') { ?>
-                                                                <button type="button" class="btn btn-danger btn-xs" 
-                                                                        onclick="window.location.href='component/delete/delete_master?no=<?php echo $fill['no']; ?>&forward=<?php echo $forward; ?>&forwardpage=<?php echo $forwardpage; ?>&chmod=<?php echo $chmod; ?>'">
-                                                                    Hapus
-                                                                </button>
-                                                            <?php } ?>
-                                                        </td>
-                                                    </tr>
-                                                <?php }
-                                            }
-                                        } else {
-                                            while (($count < $rpp) && ($i < $tcount)) {
-                                                mysqli_data_seek($result, $i);
-                                                $fill = mysqli_fetch_array($result); ?>
-                                                <tr>
-                                                    <td><?php echo ++$no_urut; ?></td>
-                                                    <td><?php echo mysqli_real_escape_string($conn, $fill['kode']); ?></td>
-                                                    <td><?php echo mysqli_real_escape_string($conn, $fill['nama']); ?></td>
-                                                    <td>
-                                                        <?php if ($chmod >= 3 || $_SESSION['jabatan'] == 'admin') { ?>
                                                             <button type="button" class="btn btn-success btn-xs" 
                                                                     onclick="window.location.href='add_<?php echo $halaman; ?>?no=<?php echo $fill['no']; ?>'">
                                                                 Edit
                                                             </button>
-                                                        <?php } ?>
-                                                        <?php if ($chmod >= 4 || $_SESSION['jabatan'] == 'admin') { ?>
+                                                            <?php if ($chmod >= 4 || (isset($_SESSION['jabatan']) && $_SESSION['jabatan'] == 'admin')) { ?>
                                                             <button type="button" class="btn btn-danger btn-xs" 
                                                                     onclick="window.location.href='component/delete/delete_master?no=<?php echo $fill['no']; ?>&forward=<?php echo $forward; ?>&forwardpage=<?php echo $forwardpage; ?>&chmod=<?php echo $chmod; ?>'">
                                                                 Hapus
                                                             </button>
+                                                            <?php } ?>
+                                                        </td>
                                                         <?php } ?>
-                                                    </td>
-                                                </tr>
-                                                <?php
-                                                $i++;
-                                                $count++;
+                                                    </tr>
+                                                <?php }
+                                            } else {
+                                                // Paging
+                                                while (($count < $rpp) && ($i < $tcount)) {
+                                                    mysqli_data_seek($result, $i);
+                                                    $fill = mysqli_fetch_array($result);
+                                                    ?>
+                                                    <tr>
+                                                        <td><?php echo ++$no_urut; ?></td>
+                                                        <td><?php echo htmlspecialchars($fill['kode']); ?></td>
+                                                        <td><?php echo htmlspecialchars($fill['nama']); ?></td>
+                                                        <?php if ($chmod >= 3 || (isset($_SESSION['jabatan']) && $_SESSION['jabatan'] == 'admin')) { ?>
+                                                        <td>
+                                                            <button type="button" class="btn btn-success btn-xs" 
+                                                                    onclick="window.location.href='add_<?php echo $halaman; ?>?no=<?php echo $fill['no']; ?>'">
+                                                                Edit
+                                                            </button>
+                                                            <?php if ($chmod >= 4 || (isset($_SESSION['jabatan']) && $_SESSION['jabatan'] == 'admin')) { ?>
+                                                            <button type="button" class="btn btn-danger btn-xs" 
+                                                                    onclick="window.location.href='component/delete/delete_master?no=<?php echo $fill['no']; ?>&forward=<?php echo $forward; ?>&forwardpage=<?php echo $forwardpage; ?>&chmod=<?php echo $chmod; ?>'">
+                                                                Hapus
+                                                            </button>
+                                                            <?php } ?>
+                                                        </td>
+                                                        <?php } ?>
+                                                    </tr>
+                                                    <?php
+                                                    $i++;
+                                                    $count++;
+                                                }
                                             }
+                                        } else {
+                                            echo '<tr><td colspan="4" align="center">Data tidak ditemukan.</td></tr>';
                                         }
                                         ?>
                                     </tbody>
                                 </table>
                                 <div align="right">
-                                    <?php if ($tcount >= $rpp) { echo paginate_one($reload, $page, $tpages); } ?>
+                                    <?php if ($tcount >= $rpp && empty($search)) { echo paginate_one($reload, $page, $tpages); } ?>
                                 </div>
                             </div>
                         </div>
